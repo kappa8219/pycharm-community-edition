@@ -6,3 +6,7 @@ results/
 flatpakbuildir/
 builddir
 repo
+.copr/*.tar.gz
+.copr/pycharm-community.xml
+.copr/pycharm-community.desktop
+.copr/pycharm-community.metainfo.xml
