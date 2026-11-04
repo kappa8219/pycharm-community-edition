@@ -1,0 +1,71 @@
+name: COPR plugins build
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/copr-plugins.yml
+      - pycharm-community-plugins.spec
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: fedora:44
+    steps:
+      - name: Install build dependencies
+        run: dnf --assumeyes install git python3-pip rpm-build curl
+
+      - uses: actions/checkout@v4
+
+      - name: Install COPR CLI
+        run: python3 -m pip install copr-cli
+
+      - name: Configure COPR CLI
+        env:
+          COPR_LOGIN: ${{ secrets.COPR_LOGIN }}
+          COPR_TOKEN: ${{ secrets.COPR_TOKEN }}
+          COPR_USERNAME: ${{ secrets.COPR_USERNAME }}
+        run: |
+          mkdir -p ~/.config
+          chmod 700 ~/.config
+          umask 077
+          cat > ~/.config/copr <<EOF
+          [copr-cli]
+          login = $COPR_LOGIN
+          username = $COPR_USERNAME
+          token = $COPR_TOKEN
+          copr_url = https://copr.fedorainfracloud.org
+          EOF
+
+      - name: Build source RPM
+        run: |
+          set -eu
+          mkdir -p "$PWD/copr-sources" "$PWD/copr-srpms"
+          curl --fail --location --retry 2 \
+            --output "$PWD/copr-sources/GitLink-5.0.1.zip" \
+            https://plugins.jetbrains.com/files/8183/1160209/GitLink-5.0.1.zip
+          curl --fail --location --retry 2 \
+            --output "$PWD/copr-sources/IdeaVIM-2.46.2.zip" \
+            https://plugins.jetbrains.com/files/164/1149038/IdeaVIM-2.46.2.zip
+          rpmbuild -bs \
+            --define "_sourcedir $PWD/copr-sources" \
+            --define "_srcrpmdir $PWD/copr-srpms" \
+            pycharm-community-plugins.spec
+
+      - name: Submit COPR build
+        env:
+          COPR_USERNAME: ${{ secrets.COPR_USERNAME }}
+        run: |
+          set -eu
+          set -- "$PWD"/copr-srpms/*.src.rpm
+          test "$#" -eq 1 && test -f "$1"
+          copr-cli build "$COPR_USERNAME/PyCharm" "$1" --nowait \
+            -r fedora-43-x86_64 \
+            -r fedora-44-x86_64 \
+            -r fedora-45-x86_64 \
+            -r fedora-rawhide-x86_64
