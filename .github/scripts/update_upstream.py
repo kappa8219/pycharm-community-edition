@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
 import tarfile
@@ -33,6 +34,9 @@ PLUGINS = {
 
 def request(url: str, data: bytes | None = None):
     headers = {"User-Agent": "pycharm-copr-release-check"}
+    token = os.environ.get("GITHUB_TOKEN")
+    if token and url.startswith("https://api.github.com/"):
+        headers["Authorization"] = f"Bearer {token}"
     if data is not None:
         headers["Content-Type"] = "application/json"
     return urlopen(Request(url, data=data, headers=headers), timeout=240)
