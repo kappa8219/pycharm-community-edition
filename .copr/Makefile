@@ -1,5 +1,5 @@
 spec ?= ../pycharm-community.spec
-version := 2026.2.4
+version := 2026.3.0.1
 release_url := https://github.com/JetBrains/intellij-community/releases/download/pycharm%2F$(version)
 sources := pycharm-$(version).tar.gz pycharm-$(version)-aarch64.tar.gz
 

@@ -18,19 +18,19 @@
 %global __requires_exclude_from %{_javadir}/%{appname}/%{plugins_dir}/.*
 
 # https://plugins.jetbrains.com/plugin/8183-gitlink/versions
-%global repmapper_version 5.0.1
-%global repmapper_id 1160209
+%global repmapper_version 5.0.2
+%global repmapper_id 1208975
 %global repmapper_name GitLink
 %global repmapper_archive %{repmapper_name}-%{repmapper_version}
 
 # https://plugins.jetbrains.com/plugin/164-ideavim/versions
-%global ideavim_version 2.46.2
-%global ideavim_id 1149038
+%global ideavim_version 2.49.1
+%global ideavim_id 1225302
 %global ideavim_name IdeaVIM
 %global ideavim_archive %{ideavim_name}-%{ideavim_version}
 
 Name:          %{appname}-plugins
-Version:       2026.2.4
+Version:       2026.3.0.1
 Release:       1%{?dist}
 
 Summary:       Plugins for intelligent Python IDE
@@ -55,8 +55,8 @@ ExclusiveArch: x86_64
 GitLink and IdeaVim plugins for PyCharm Community Edition.
 
 %prep
-echo '1db0f6669b6431e4f167a8bd2c70671fb727c74e0ac37796abf49a2d2c52270a  %{SOURCE0}' | sha256sum --check
-echo '9f0523a4d3dbb8f4d4e8bb5b781b580e69d1ff04181fc887891234d7518abd16  %{SOURCE1}' | sha256sum --check
+echo '97b177881f550f994072af7ce9dff784d7abd34c175359e437a9e5f575e5410c  %{SOURCE0}' | sha256sum --check
+echo '6ee8fa5f95461822686b7c281502b9f4c6acf02f5f95d3973fa483ac6924cbc1  %{SOURCE1}' | sha256sum --check
 %setup -q -c -n %{appname}-%{version} -T -a 0 -a 1
 
 %install
@@ -71,6 +71,9 @@ cp -arf ./%{ideavim_name} %{buildroot}%{_javadir}/%{appname}/%{plugins_dir}/
 %{_javadir}/%{appname}/%{plugins_dir}/%{ideavim_name}
 
 %changelog
+* Fri Nov 20 2026 OK <4374115+kappa8219@users.noreply.github.com> - 2026.3.0.1-1
+- Update compatible GitLink 5.0.2 and IdeaVIM 2.49.1 for PyCharm 2026.3.0.1
+
 * Wed Nov 04 2026 OK <4374115+kappa8219@users.noreply.github.com> - 2026.2.4-1
 - Package GitLink and IdeaVim for PyCharm Community 2026.2.4
 

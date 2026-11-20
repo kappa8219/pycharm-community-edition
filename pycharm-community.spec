@@ -19,7 +19,7 @@
 %global __requires_exclude_from %{_javadir}/%{name}/jbr/.*|%{_javadir}/%{name}/lib/.*|%{_javadir}/%{name}/plugins/.*
 
 Name:          %{appname}-community
-Version:       2026.2.4
+Version:       2026.3.0.1
 Release:       1%{?dist}
 
 Summary:       Intelligent Python IDE
@@ -66,10 +66,10 @@ This package contains documentation for the Intelligent Python IDE.
 
 %prep
 %ifarch aarch64
-echo 'c1934e7f7c1a507cbda96d1fa9d040008dd05f1d7bff8ddbbd03ae5abc2b21a8  %{SOURCE1}' | sha256sum --check
+echo '6bf163eb1e06e920d7b86c2b11a5a343d64adc0b39d271181d1633bc3cf57bf9  %{SOURCE1}' | sha256sum --check
 %setup -q -T -b 1 -n pycharm-oss
 %else
-echo 'dac1622f85d496f50fa159507c22853d3d18a6f08b6e32674b59180f67881f0f  %{SOURCE0}' | sha256sum --check
+echo '72e4980d7dcf28931a23f06d3c7205b747b4aef3f08196fb4eb8e7e5c8ed9b0e  %{SOURCE0}' | sha256sum --check
 %setup -q -T -b 0 -n pycharm-oss
 %endif
 
@@ -127,7 +127,7 @@ tail -n +2 %{buildroot}%{_datadir}/java/pycharm-community/plugins/python-ce/help
 sed -i '1 i #!/usr/bin/env python3' %{buildroot}%{_datadir}/java/pycharm-community/plugins/python-ce/helpers/pycodestyle.py
 
 %check
-grep -Fx 'IMPLEMENTOR_VERSION="JBR-25.0.4.1+1-508.41-nomod"' %{buildroot}%{_javadir}/%{name}/jbr/release
+grep -Fx 'IMPLEMENTOR_VERSION="JBR-25.0.4.1+1-635.79-nomod"' %{buildroot}%{_javadir}/%{name}/jbr/release
 appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/%{name}.metainfo.xml
 desktop-file-validate %{buildroot}%{_datadir}/applications/%{name}.desktop
 
@@ -146,6 +146,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/%{name}.desktop
 %doc Install-Linux-tar.txt
 
 %changelog
+* Fri Nov 20 2026 OK <4374115+kappa8219@users.noreply.github.com> - 2026.3.0.1-1
+- Update PyCharm to 2026.3.0.1 with bundled JBR JBR-25.0.4.1+1-635.79-nomod
+
 * Tue Nov 03 2026 OK <4374115+kappa8219@users.noreply.github.com> - 2026.2.4-1
 - Update to PyCharm 2026.2.4 with the patched bundled JetBrains Runtime
 
