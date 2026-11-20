@@ -1,0 +1,49 @@
+name: Check upstream PyCharm release
+
+on:
+  schedule:
+    - cron: "43 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check stable PyCharm release and compatible plugins
+        id: update
+        run: python3 .github/scripts/update_upstream.py | tee -a "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Open or update release PR
+        if: steps.update.outputs.updated == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: automation/pycharm-upstream-release
+          delete-branch: true
+          commit-message: "Update PyCharm to ${{ steps.update.outputs.version }}"
+          title: "Update PyCharm to ${{ steps.update.outputs.version }}"
+          body: |
+            Update PyCharm Community and its plugin package to the latest stable PyCharm release.
+
+            Upstream release: ${{ steps.update.outputs.release_url }}
+            Bundled JBR: ${{ steps.update.outputs.jbr_version }}
+            Compatible plugins: ${{ steps.update.outputs.plugins }}
+
+            The updater selects stable Marketplace plugin releases compatible with the bundled PyCharm build and verifies their source checksums. Existing COPR workflows will build the IDE and plugin packages after this PR is merged.
+
+      - name: Notify maintainer about the PR
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+          VERSION: ${{ steps.update.outputs.version }}
+        run: gh pr comment "$PR_URL" --body "@kappa8219 PyCharm $VERSION and compatible-plugin update is ready for review: $PR_URL"

@@ -46,12 +46,13 @@ jobs:
         run: |
           set -eu
           mkdir -p "$PWD/copr-sources" "$PWD/copr-srpms"
-          curl --fail --location --retry 2 \
-            --output "$PWD/copr-sources/GitLink-5.0.1.zip" \
-            https://plugins.jetbrains.com/files/8183/1160209/GitLink-5.0.1.zip
-          curl --fail --location --retry 2 \
-            --output "$PWD/copr-sources/IdeaVIM-2.46.2.zip" \
-            https://plugins.jetbrains.com/files/164/1149038/IdeaVIM-2.46.2.zip
+          rpmspec -P pycharm-community-plugins.spec \
+            | sed -n 's/^Source[01]:[[:space:]]*//p' > "$PWD/copr-sources/source-urls.txt"
+          while IFS= read -r source; do
+            filename=${source##*/}
+            curl --fail --location --retry 2 \
+              --output "$PWD/copr-sources/$filename" "$source"
+          done < "$PWD/copr-sources/source-urls.txt"
           rpmbuild -bs \
             --define "_sourcedir $PWD/copr-sources" \
             --define "_srcrpmdir $PWD/copr-srpms" \
